@@ -24,10 +24,10 @@ func Sha1Digest(data []byte) []byte {
 	return h.Sum(nil)
 }
 
-func sha1RsaSign(in []byte) []byte {
+func sha1RsaSign(keypath string, in []byte) []byte {
 
 	// Read the private key
-	pemData, err := ioutil.ReadFile("/Users/zjy/Downloads/key.pem")
+	pemData, err := ioutil.ReadFile(keypath)
 	if err != nil {
 		log.Fatalf("read key file: %s", err)
 	}
@@ -61,9 +61,9 @@ func sha1RsaSign(in []byte) []byte {
 	return encData
 }
 
-func sha1RsaVerify(signature, in []byte) error {
+func sha1RsaVerify(cerpath string, signature, in []byte) error {
 	// Read the verify sign certification key
-	pemData, err := ioutil.ReadFile("/Users/zjy/Downloads/verify_sign_acp.cer")
+	pemData, err := ioutil.ReadFile(cerpath)
 	if err != nil {
 		log.Fatalf("read key file: %s", err)
 	}

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func Sign(param map[string]string) error {
+func Sign(keypath string, param map[string]string) error {
 
 	//证书序列号
 	param["certId"] = signCertId()
@@ -22,7 +22,7 @@ func Sign(param map[string]string) error {
 	hexSignedDigest := fmt.Sprintf("%x", signedDigest)
 	// fmt.Println("sha1:", hexSignedDigest)
 
-	byteSign := sha1RsaSign([]byte(hexSignedDigest))
+	byteSign := sha1RsaSign(keypath, []byte(hexSignedDigest))
 	// fmt.Println(byteSign)
 
 	// fmt.Println("sign:", base64String(byteSign))
@@ -34,7 +34,7 @@ func Sign(param map[string]string) error {
 
 }
 
-func Validate(param map[string]string) error{
+func Validate(certpath string, param map[string]string) error{
 	//获取签名
 	signature := param["signature"]
 	// fmt.Println(signature)
@@ -48,7 +48,7 @@ func Validate(param map[string]string) error{
 
 
 	//TODO: check serial number of certifcate
-	return sha1RsaVerify(signByte, []byte(hexSignedDigest))
+	return sha1RsaVerify(certpath, signByte, []byte(hexSignedDigest))
 }
 
 func sortAndConcat(param map[string]string) string {
