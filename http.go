@@ -12,14 +12,20 @@ import (
 	"time"
 )
 
+// AppTrans is client for submit order and get back the TN(transaction number) from
+// china unionpay
 type AppTrans struct {
 	Config *UnionpayConfig
 }
 
+// NewApppTrans initial the AppTrans with specific configuration
 func NewAppTrans(cfg *UnionpayConfig) *AppTrans {
 	return &AppTrans{Config: cfg}
 }
 
+// Submit the order to china unionpay and return the TN(transaction number) if success,
+// TN is used by mobile app.
+// If fail, error is not nil, check error for more information
 func (this *AppTrans) Submit(orderId string, amount float64, desc string) (string, error) {
 
 	if this.Config.SignKeyPath == "" ||
@@ -59,7 +65,6 @@ func (this *AppTrans) Submit(orderId string, amount float64, desc string) (strin
 	if err != nil {
 		return "", err
 	}
-
 
 	respValue := parseResponse(response)
 	respCode, ok := respValue["respCode"]

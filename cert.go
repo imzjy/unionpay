@@ -1,18 +1,15 @@
-// Parse certification
-// With some handy functions, su as get public key, serial number of a certifcaton
 package gounionpay
 
 import (
-	"math/big"
 	"crypto/x509"
 	"encoding/pem"
-	"fmt"
 	"errors"
+	"fmt"
 	"io/ioutil"
+	"math/big"
 )
 
-
-func parseCertificate(pemData []byte) (*x509.Certificate, error){
+func parseCertificate(pemData []byte) (*x509.Certificate, error) {
 	// Extract the PEM-encoded data block
 	block, _ := pem.Decode(pemData)
 	if block == nil {
@@ -40,7 +37,7 @@ func certSerialNumber(pemData []byte) (*big.Int, error) {
 	return cert.SerialNumber, nil
 }
 
-func certSerialNumberFromFile(certpath string)(*big.Int, error) {
+func certSerialNumberFromFile(certpath string) (*big.Int, error) {
 	pemData, err := ioutil.ReadFile(certpath)
 	if err != nil {
 		return big.NewInt(0), err
@@ -49,7 +46,7 @@ func certSerialNumberFromFile(certpath string)(*big.Int, error) {
 	return certSerialNumber(pemData)
 }
 
-func certPublickey(pemData []byte)(interface{}, error) {
+func certPublickey(pemData []byte) (interface{}, error) {
 	cert, err := parseCertificate(pemData)
 	if err != nil {
 		return nil, err

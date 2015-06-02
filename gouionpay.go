@@ -4,8 +4,8 @@ import (
 	"fmt"
 )
 
-//Sign the submit data
-//More info refer to https://open.unionpay.com/ajweb/help/faq/detail?id=38
+// Sign the data to comform with specs,
+// more info refer to https://open.unionpay.com/ajweb/help/faq/detail?id=38
 func Sign(keypath string, certpath string, param map[string]string) error {
 
 	//证书序列号
@@ -31,9 +31,9 @@ func Sign(keypath string, certpath string, param map[string]string) error {
 	return nil
 }
 
-//Validate the response message with verfy certificate
-//More info refer to https://open.unionpay.com/ajweb/help/faq/detail?id=38
-func Validate(certpath string, param map[string]string) error{
+// Validate the response message with verfy certificate,
+// more info refer to https://open.unionpay.com/ajweb/help/faq/detail?id=38
+func Validate(certpath string, param map[string]string) error {
 	//获取签名
 	signature := param["signature"]
 	// fmt.Println(signature)
@@ -44,7 +44,6 @@ func Validate(certpath string, param map[string]string) error{
 	stringData := sortAndConcat(param)
 	signedDigest := sha1DigestFromString(stringData)
 	hexSignedDigest := fmt.Sprintf("%x", signedDigest)
-
 
 	//TODO: check serial number of certifcate
 	return rsaVerifyBySha1(certpath, signByte, []byte(hexSignedDigest))
