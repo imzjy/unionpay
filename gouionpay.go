@@ -9,7 +9,7 @@ import (
 func Sign(keypath string, certpath string, param map[string]string) error {
 
 	//证书序列号
-	certSn, err := CertSerialNumberFromFile(certpath)
+	certSn, err := certSerialNumberFromFile(certpath)
 	if err != nil {
 		return err
 	}
@@ -17,7 +17,7 @@ func Sign(keypath string, certpath string, param map[string]string) error {
 	param["certId"] = certSn.String()
 
 	sortedPairStr := sortAndConcat(param)
-	signedDigest := Sha1DigestFromString(sortedPairStr)
+	signedDigest := sha1DigestFromString(sortedPairStr)
 	hexSignedDigest := fmt.Sprintf("%x", signedDigest)
 
 	byteSign, err := rsaSignBySha1(keypath, []byte(hexSignedDigest))
@@ -37,12 +37,12 @@ func Validate(certpath string, param map[string]string) error{
 	//获取签名
 	signature := param["signature"]
 	// fmt.Println(signature)
-	signByte := base64Bytes(signature+"==")
+	signByte := base64Bytes(signature)
 
 	delete(param, "signature")
 
 	stringData := sortAndConcat(param)
-	signedDigest := Sha1DigestFromString(stringData)
+	signedDigest := sha1DigestFromString(stringData)
 	hexSignedDigest := fmt.Sprintf("%x", signedDigest)
 
 

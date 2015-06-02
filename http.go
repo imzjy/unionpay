@@ -91,13 +91,17 @@ func parseResponse(resp []byte) map[string]string {
 	retMap := make(map[string]string)
 	content := strings.Split(string(resp), "&")
 
-	for _, v := range content {
+	for _, item := range content {
 
-		// fmt.Println(v)
-		// fmt.Println(item[0],"=", item[1])
+		//strings.Split(s, "=") will cause error when signature has padding(that is something like "==")
+		idx := strings.IndexAny(item, "=")
+		if idx < 0 {
+			panic("response value parse error:" + item)
+		}
 
-		item := strings.Split(v, "=")
-		retMap[item[0]] = item[1]
+		k := item[:idx]
+		v := item[idx+1:]
+		retMap[k] = v
 	}
 
 	return retMap

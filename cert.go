@@ -12,7 +12,7 @@ import (
 )
 
 
-func ParseCertificate(pemData []byte) (*x509.Certificate, error){
+func parseCertificate(pemData []byte) (*x509.Certificate, error){
 	// Extract the PEM-encoded data block
 	block, _ := pem.Decode(pemData)
 	if block == nil {
@@ -31,8 +31,8 @@ func ParseCertificate(pemData []byte) (*x509.Certificate, error){
 	return cert, nil
 }
 
-func CertSerialNumber(pemData []byte) (*big.Int, error) {
-	cert, err := ParseCertificate(pemData)
+func certSerialNumber(pemData []byte) (*big.Int, error) {
+	cert, err := parseCertificate(pemData)
 	if err != nil {
 		return big.NewInt(0), err
 	}
@@ -40,17 +40,17 @@ func CertSerialNumber(pemData []byte) (*big.Int, error) {
 	return cert.SerialNumber, nil
 }
 
-func CertSerialNumberFromFile(certpath string)(*big.Int, error) {
+func certSerialNumberFromFile(certpath string)(*big.Int, error) {
 	pemData, err := ioutil.ReadFile(certpath)
 	if err != nil {
 		return big.NewInt(0), err
 	}
 
-	return CertSerialNumber(pemData)
+	return certSerialNumber(pemData)
 }
 
-func CertPublickey(pemData []byte)(interface{}, error) {
-	cert, err := ParseCertificate(pemData)
+func certPublickey(pemData []byte)(interface{}, error) {
+	cert, err := parseCertificate(pemData)
 	if err != nil {
 		return nil, err
 	}

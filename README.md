@@ -6,4 +6,4 @@ Implemenation of China unionpay backend for mobile app transaction with [golang]
 
 # documentation
 
-Please refer to [gowalk](https://gowalker.org/github.com/imzjy/gounionpay)
+Please refer to [gowalker](https://gowalker.org/github.com/imzjy/gounionpay)

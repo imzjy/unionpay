@@ -12,11 +12,11 @@ import (
 	"io/ioutil"
 )
 
-func Sha1DigestFromString(data string) []byte {
-	return Sha1Digest([]byte(data))
+func sha1DigestFromString(data string) []byte {
+	return sha1Digest([]byte(data))
 }
 
-func Sha1Digest(data []byte) []byte {
+func sha1Digest(data []byte) []byte {
 
 	h := sha1.New()
 	h.Write(data)
@@ -50,7 +50,7 @@ func rsaSignBySha1(keypath string, in []byte) ([]byte, error) {
 	// fmt.Println("priv:", priv)
 	// fmt.Println("in:", in, "len(in):", len(in))
 
-	encData, err := rsa.SignPKCS1v15(nil, priv, crypto.SHA1, Sha1Digest(in))
+	encData, err := rsa.SignPKCS1v15(nil, priv, crypto.SHA1, sha1Digest(in))
 	if err != nil {
 		return []byte(""), err
 	}
@@ -81,7 +81,7 @@ func rsaVerifyBySha1(cerpath string, signature, in []byte) error {
 	}
 	// fmt.Println(cert)
 
-	err = rsa.VerifyPKCS1v15(cert.PublicKey.(*rsa.PublicKey), crypto.SHA1, Sha1Digest(in), signature)
+	err = rsa.VerifyPKCS1v15(cert.PublicKey.(*rsa.PublicKey), crypto.SHA1, sha1Digest(in), signature)
 	if err != nil {
 		return fmt.Errorf("VerifyPKCS1v15 fail: %s", err)
 	}
