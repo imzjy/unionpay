@@ -1,14 +1,11 @@
 package gounionpay
 
 import (
-	"bytes"
 	"crypto/tls"
 	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"net/url"
-	"strings"
 	"time"
 )
 
@@ -59,14 +56,18 @@ func (this *AppTrans) Submit(orderId string, amount float64, desc string) (strin
 	param["orderDesc"] = desc                                                  //订单描述，可不上送，上送时控件中会显示该信息
 	param["reqReserved"] = "透传字段"                                              //请求方保留域，透传字段，查询、通知、对账文件中均会原样出现
 
-	Sign(this.Config.SignKeyPath, this.Config.SignCertPath, param)
+	this.Sign(param)
 
-	response, err := doTrans(param, this.Config.AppTransUrl)
+	respMsg, err := doTrans(param, this.Config.AppTransUrl)
 	if err != nil {
 		return "", err
 	}
 
-	respValue := parseResponse(response)
+	respValue, err := ParseResponseMsg(respMsg)
+	if err != nil {
+		return "", err
+	}
+
 	respCode, ok := respValue["respCode"]
 	if !ok {
 		return "", errors.New("respCode field not found")
@@ -76,7 +77,7 @@ func (this *AppTrans) Submit(orderId string, amount float64, desc string) (strin
 		return "", errors.New("respCode:" + respCode)
 	}
 
-	err = Validate(this.Config.VerifyCertPath, respValue)
+	err = this.Validate(respValue)
 	if err != nil {
 		return "", err
 	}
@@ -91,29 +92,57 @@ func (this *AppTrans) Submit(orderId string, amount float64, desc string) (strin
 	}
 }
 
-func parseResponse(resp []byte) map[string]string {
 
-	retMap := make(map[string]string)
-	content := strings.Split(string(resp), "&")
+// Sign the data to comform with specs,
+// more info refer to https://open.unionpay.com/ajweb/help/faq/detail?id=38
+func (this *AppTrans) Sign(param map[string]string) error {
 
-	for _, item := range content {
-
-		//strings.Split(s, "=") will cause error when signature has padding(that is something like "==")
-		idx := strings.IndexAny(item, "=")
-		if idx < 0 {
-			panic("response value parse error:" + item)
-		}
-
-		k := item[:idx]
-		v := item[idx+1:]
-		retMap[k] = v
+	//证书序列号
+	certSn, err := certSerialNumberFromFile(this.Config.SignCertPath)
+	if err != nil {
+		return err
 	}
 
-	return retMap
+	param["certId"] = certSn.String()
+
+	sortedPairStr := SortAndConcat(param)
+	signedDigest := sha1DigestFromString(sortedPairStr)
+	hexSignedDigest := fmt.Sprintf("%x", signedDigest)
+
+	byteSign, err := rsaSignBySha1(this.Config.SignKeyPath, []byte(hexSignedDigest))
+	if err != nil {
+		return err
+	}
+
+	//设置签名
+	param["signature"] = base64String(byteSign)
+
+	return nil
 }
 
+
+// Validate the response message with verfy certificate,
+// more info refer to https://open.unionpay.com/ajweb/help/faq/detail?id=38
+func (this *AppTrans) Validate(param map[string]string) error {
+	//获取签名
+	signature := param["signature"]
+	// fmt.Println(signature)
+	signByte := base64Bytes(signature)
+
+	delete(param, "signature")
+
+	stringData := SortAndConcat(param)
+	signedDigest := sha1DigestFromString(stringData)
+	hexSignedDigest := fmt.Sprintf("%x", signedDigest)
+
+	//TODO: check serial number of certifcate
+	return rsaVerifyBySha1(this.Config.VerifyCertPath, signByte, []byte(hexSignedDigest))
+}
+
+
+
 func doTrans(param map[string]string, appTransUrl string) ([]byte, error) {
-	datagram := concatParam(param)
+	datagram := ConcatWithUrlEncode(param)
 
 	req, err := http.NewRequest("POST", appTransUrl, &datagram)
 	if err != nil {
@@ -138,28 +167,4 @@ func doTrans(param map[string]string, appTransUrl string) ([]byte, error) {
 	}
 
 	return respData, nil
-}
-
-func concatParam(param map[string]string) bytes.Buffer {
-	var sortedParam []string
-	for k, v := range param {
-		// fmt.Println(k, "=", UrlEncoded(v))
-		sortedParam = append(sortedParam, k+"="+urlEncode(v))
-	}
-
-	return *bytes.NewBufferString(strings.Join(sortedParam, "&"))
-}
-
-func urlEncode(str string) string {
-	// fmt.Println("in:", str)
-	encodedUrl := url.QueryEscape(str)
-	// fmt.Println("out:", encodedUrl)
-
-	return encodedUrl
-}
-
-func printMap(m map[string]string) {
-	for k, v := range m {
-		fmt.Println(k, "=", v)
-	}
 }
