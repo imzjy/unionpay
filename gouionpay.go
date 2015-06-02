@@ -6,15 +6,24 @@ import (
 
 //Sign the submit data
 //More info refer to https://open.unionpay.com/ajweb/help/faq/detail?id=38
-func Sign(keypath string, param map[string]string) error {
+func Sign(keypath string, certpath string, param map[string]string) error {
 
 	//证书序列号
-	param["certId"] = signCertId()
+	certSn, err := CertSerialNumberFromFile(certpath)
+	if err != nil {
+		return err
+	}
+
+	param["certId"] = certSn.String()
 
 	sortedPairStr := sortAndConcat(param)
 	signedDigest := Sha1DigestFromString(sortedPairStr)
 	hexSignedDigest := fmt.Sprintf("%x", signedDigest)
-	byteSign := sha1RsaSign(keypath, []byte(hexSignedDigest))
+
+	byteSign, err := rsaSignBySha1(keypath, []byte(hexSignedDigest))
+	if err != nil {
+		return err
+	}
 
 	//设置签名
 	param["signature"] = base64String(byteSign)
@@ -38,5 +47,5 @@ func Validate(certpath string, param map[string]string) error{
 
 
 	//TODO: check serial number of certifcate
-	return sha1RsaVerify(certpath, signByte, []byte(hexSignedDigest))
+	return rsaVerifyBySha1(certpath, signByte, []byte(hexSignedDigest))
 }

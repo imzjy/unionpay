@@ -8,6 +8,7 @@ import (
 	"encoding/pem"
 	"fmt"
 	"errors"
+	"io/ioutil"
 )
 
 
@@ -37,6 +38,15 @@ func CertSerialNumber(pemData []byte) (*big.Int, error) {
 	}
 
 	return cert.SerialNumber, nil
+}
+
+func CertSerialNumberFromFile(certpath string)(*big.Int, error) {
+	pemData, err := ioutil.ReadFile(certpath)
+	if err != nil {
+		return big.NewInt(0), err
+	}
+
+	return CertSerialNumber(pemData)
 }
 
 func CertPublickey(pemData []byte)(interface{}, error) {
