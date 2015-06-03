@@ -7,6 +7,18 @@ Implemenation of China unionpay backend for mobile app transaction with [golang]
 # usage
 
 ```go
+//初始化
+cfg := &gounionpay.UnionpayConfig{
+	SignKeyPath:    "sign key file path",
+	SignCertPath:   "sign cert file path",
+	VerifyCertPath: "verify cert file path",
+
+	CallbackUrl: "服务端回调URL",
+	MerId:       "商户号",
+	AppTransUrl: "移动应用交易URL",
+}
+appTrans = gounionpay.NewAppTrans(cfg)
+
 //获取tn，手机端得到tn后就可以使用这个tn发起支付调用
 tn, err := appTrans.Submit(orderId, orderAmount, orderDescription)
 if err != nil {
@@ -28,7 +40,6 @@ for rk, rv := range respVal {
 	}
 }
 
-appTrans := newAppTrans()
 err = appTrans.Validate(respVal)
 if err != nil {
 	log(err)
