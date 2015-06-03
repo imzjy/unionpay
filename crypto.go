@@ -93,11 +93,6 @@ func base64String(in []byte) string {
 	return base64.StdEncoding.EncodeToString(in)
 }
 
-func base64Bytes(in string) []byte {
-	data, err := base64.StdEncoding.DecodeString(in)
-	if err != nil {
-		panic(err)
-	}
-
-	return data
+func base64Bytes(in string) ([]byte, error) {
+	return base64.StdEncoding.DecodeString(in)
 }

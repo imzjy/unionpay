@@ -127,7 +127,10 @@ func (this *AppTrans) Validate(param map[string]string) error {
 	//获取签名
 	signature := param["signature"]
 	// fmt.Println(signature)
-	signByte := base64Bytes(signature)
+	signByte, err := base64Bytes(signature)
+	if err != nil {
+		return err
+	}
 
 	delete(param, "signature")
 
