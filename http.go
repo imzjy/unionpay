@@ -73,7 +73,7 @@ func (this *AppTrans) Submit(orderId string, amount float64, desc string) (strin
 		return "", errors.New("respCode field not found")
 	}
 	if respCode != "00" {
-		printMap(respValue)
+		PrintMap(respValue)
 		return "", errors.New("respCode:" + respCode)
 	}
 
@@ -87,7 +87,7 @@ func (this *AppTrans) Submit(orderId string, amount float64, desc string) (strin
 		// fmt.Println("TN:", tn)
 		return tn, nil
 	} else {
-		printMap(respValue)
+		PrintMap(respValue)
 		return "", errors.New("tn field not found")
 	}
 }

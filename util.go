@@ -31,8 +31,8 @@ func SortAndConcat(param map[string]string) string {
 func ConcatWithUrlEncode(param map[string]string) bytes.Buffer {
 	var sortedParam []string
 	for k, v := range param {
-		// fmt.Println(k, "=", UrlEncoded(v))
-		sortedParam = append(sortedParam, k+"="+urlEncode(v))
+		// fmt.Println(k, "=", UrlEncode(v))
+		sortedParam = append(sortedParam, k+"="+UrlEncode(v))
 	}
 
 	return *bytes.NewBufferString(strings.Join(sortedParam, "&"))
@@ -61,7 +61,8 @@ func ParseResponseMsg(resp []byte) (map[string]string, error) {
 	return retMap, nil
 }
 
-func urlEncode(str string) string {
+// UrlEncode encode the string for url passing
+func UrlEncode(str string) string {
 	// fmt.Println("in:", str)
 	encodedUrl := url.QueryEscape(str)
 	// fmt.Println("out:", encodedUrl)
@@ -69,7 +70,13 @@ func urlEncode(str string) string {
 	return encodedUrl
 }
 
-func printMap(m map[string]string) {
+// UrlDecode decode the url encoded string to original string
+func UrlDecode(str string) (string, error) {
+	return url.QueryUnescape(str)
+}
+
+// PrintMap print map in form of "k=v"
+func PrintMap(m map[string]string) {
 	for k, v := range m {
 		fmt.Println(k, "=", v)
 	}
