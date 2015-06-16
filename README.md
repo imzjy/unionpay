@@ -1,4 +1,4 @@
-# gounionpay
+# unionpay
 
 中国银联手机控件支付后端实现
 
@@ -8,7 +8,7 @@ Implemenation of China unionpay backend for mobile app transaction with [golang]
 
 ```go
 //初始化
-cfg := &gounionpay.UnionpayConfig{
+cfg := &unionpay.UnionpayConfig{
 	SignKeyPath:    "sign key file path",
 	SignCertPath:   "sign cert file path",
 	VerifyCertPath: "verify cert file path",
@@ -17,7 +17,7 @@ cfg := &gounionpay.UnionpayConfig{
 	MerId:       "商户号",
 	AppTransUrl: "移动应用交易URL",
 }
-appTrans = gounionpay.NewAppTrans(cfg)
+appTrans = unionpay.NewAppTrans(cfg)
 
 //获取tn，手机端得到tn后就可以使用这个tn发起支付调用
 tn, err := appTrans.Submit(orderId, orderAmount, orderDescription)
@@ -27,14 +27,14 @@ if err != nil {
 }
 
 //回调接口校验
-respVal, err := gounionpay.ParseResponseMsg(respBody)
+respVal, err := unionpay.ParseResponseMsg(respBody)
 if err != nil {
 	log(err)
 	return
 }
 
 for rk, rv := range respVal {
-	decVal, err := gounionpay.UrlDecode(rv)
+	decVal, err := unionpay.UrlDecode(rv)
 	if err == nil {
 		respVal[rk] = decVal
 	}
@@ -48,4 +48,4 @@ if err != nil {
 
 # documentation
 
-Please refer to [gowalker](https://gowalker.org/github.com/imzjy/gounionpay)
+Please refer to [gowalker](https://gowalker.org/github.com/imzjy/unionpay)

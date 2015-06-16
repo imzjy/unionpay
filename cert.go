@@ -1,4 +1,4 @@
-package gounionpay
+package unionpay
 
 import (
 	"crypto/x509"

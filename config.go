@@ -1,4 +1,4 @@
-package gounionpay
+package unionpay
 
 type UnionpayConfig struct {
 	SignKeyPath    string //加密密钥路径(openssl pkcs12 -in PM_700000000000001_acp.pfx -clcerts -nokeys -out key.cert)
