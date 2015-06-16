@@ -16,23 +16,23 @@ type AppTrans struct {
 }
 
 // NewApppTrans initial the AppTrans with specific configuration
-func NewAppTrans(cfg *UnionpayConfig) *AppTrans {
-	return &AppTrans{Config: cfg}
+func NewAppTrans(cfg *UnionpayConfig) (*AppTrans, error) {
+	if cfg.SignKeyPath == "" ||
+		cfg.SignCertPath == "" ||
+		cfg.VerifyCertPath == "" ||
+		cfg.MerId == "" ||
+		cfg.CallbackUrl == "" ||
+		cfg.AppTransUrl == "" {
+		return &AppTrans{Config: cfg}, errors.New("config field cannot be empty string")
+	}
+
+	return &AppTrans{Config: cfg}, nil
 }
 
 // Submit the order to china unionpay and return the TN(transaction number) if success,
 // TN is used by mobile app.
 // If fail, error is not nil, check error for more information
 func (this *AppTrans) Submit(orderId string, amount float64, desc string) (string, error) {
-
-	if this.Config.SignKeyPath == "" ||
-		this.Config.SignCertPath == "" ||
-		this.Config.VerifyCertPath == "" ||
-		this.Config.CallbackUrl == "" ||
-		this.Config.MerId == "" ||
-		this.Config.AppTransUrl == "" {
-		return "", errors.New("Please set key and cert")
-	}
 
 	txnTime := time.Now().Format("20060102030405")
 	txnAmt := fmt.Sprintf("%.0f", amount) //单位为分，不可以有小数
@@ -92,7 +92,6 @@ func (this *AppTrans) Submit(orderId string, amount float64, desc string) (strin
 	}
 }
 
-
 // Sign the data to comform with specs,
 // more info refer to https://open.unionpay.com/ajweb/help/faq/detail?id=38
 func (this *AppTrans) Sign(param map[string]string) error {
@@ -120,7 +119,6 @@ func (this *AppTrans) Sign(param map[string]string) error {
 	return nil
 }
 
-
 // Validate the response message with verfy certificate,
 // more info refer to https://open.unionpay.com/ajweb/help/faq/detail?id=38
 func (this *AppTrans) Validate(param map[string]string) error {
@@ -141,8 +139,6 @@ func (this *AppTrans) Validate(param map[string]string) error {
 	//TODO: check serial number of certifcate
 	return rsaVerifyBySha1(this.Config.VerifyCertPath, signByte, []byte(hexSignedDigest))
 }
-
-
 
 func doTrans(param map[string]string, appTransUrl string) ([]byte, error) {
 	datagram := ConcatWithUrlEncode(param)
